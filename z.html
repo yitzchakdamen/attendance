@@ -1,0 +1,1364 @@
+
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת נוכחות - כיתה A</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <!-- Google Fonts - Enhanced Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons - Modern Icon Set -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    
+    <style>
+        :root {
+            /* Modern Military Color Palette */
+            --primary-dark: #1a2e1a;
+            --primary: #2d5a2d;
+            --primary-light: #4a7c4a;
+            --accent: #7cb342;
+            --accent-light: #8bc34a;
+            
+            /* Modern Neutrals */
+            --surface: #ffffff;
+            --surface-alt: #f8fafc;
+            --surface-dark: #f1f5f9;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            
+            /* Status Colors */
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            
+            /* Text Colors */
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            
+            /* Modern Shadows */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --radius-xl: 1.5rem;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', 'Rubik', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Modern Background Pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(74, 124, 74, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(45, 90, 45, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Modern Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Glassmorphism effect for header */
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(10px);
+            pointer-events: none;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .header-main {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .header h1 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-family: 'Rubik', sans-serif;
+        }
+        
+        .header-icon {
+            width: 3rem;
+            height: 3rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+        
+        /* Modern User Profile Badge */
+        .user-profile {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            min-width: 200px;
+        }
+        
+        .user-avatar {
+            width: 3rem;
+            height: 3rem;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .user-rank {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        /* Modern Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (min-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        /* Modern Cards */
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-light);
+            position: relative;
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--surface-alt) 0%, var(--surface-dark) 100%);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+        
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+        }
+        
+        .card-header h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 0;
+        }
+        
+        .card-header-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .card-body {
+            padding: 2rem;
+        }
+        
+        /* Modern Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .form-control {
+            width: 100%;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--border);
+            padding: 1rem 1.25rem;
+            font-size: 1rem;
+            font-weight: 500;
+            background-color: var(--surface-alt);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+        
+        .form-control:focus {
+            border-color: var(--accent);
+            background-color: var(--surface);
+            box-shadow: 0 0 0 4px rgba(124, 179, 66, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        /* Modern Buttons */
+        .btn {
+            border-radius: var(--radius-md);
+            padding: 1rem 2rem;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover:before {
+            left: 100%;
+        }
+        
+        .btn-block {
+            width: 100%;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: var(--shadow);
+        }
+        
+        /* Modern Status Badges */
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-lg);
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        
+        .present {
+            background: var(--success-light);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        .absent {
+            background: var(--danger-light);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        
+        .approved {
+            background: var(--warning-light);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        
+        /* Modern Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-item {
+            background: linear-gradient(135deg, var(--surface) 0%, var(--surface-alt) 100%);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid var(--border-light);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .present-stat {
+            color: var(--success);
+        }
+        
+        .absent-stat {
+            color: var(--danger);
+        }
+        
+        .approved-stat {
+            color: var(--warning);
+        }
+        
+        /* Modern Table */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 700px;
+            background: var(--surface);
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, var(--surface-dark) 0%, var(--surface-alt) 100%);
+            font-weight: 700;
+            padding: 1.25rem 1.5rem;
+            text-align: right;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .table th:first-child {
+            border-top-right-radius: var(--radius-lg);
+        }
+        
+        .table th:last-child {
+            border-top-left-radius: var(--radius-lg);
+        }
+        
+        .table td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            background-color: var(--surface);
+            transition: all 0.2s ease;
+        }
+        
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .table tr:last-child td:first-child {
+            border-bottom-right-radius: var(--radius-lg);
+        }
+        
+        .table tr:last-child td:last-child {
+            border-bottom-left-radius: var(--radius-lg);
+        }
+        
+        .table tr:hover td {
+            background-color: var(--surface-alt);
+            transform: scale(1.01);
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 280px;
+            margin-top: 1.5rem;
+            background: var(--surface-alt);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+        }
+        
+        /* Modern Download Button */
+        .download-btn {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: var(--shadow-md);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .download-btn:hover {
+            background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        /* Time Overlay */
+        .time-overlay {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-xl);
+            z-index: 20;
+        }
+        
+        .time-overlay-content {
+            text-align: center;
+            padding: 2rem;
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border);
+        }
+        
+        .time-overlay-icon {
+            width: 4rem;
+            height: 4rem;
+            background: linear-gradient(135deg, var(--danger) 0%, #f87171 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+        }
+        
+        /* Device Icons */
+        .device-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mobile-icon { color: #3b82f6; }
+        .desktop-icon { color: #8b5cf6; }
+        .tablet-icon { color: #ec4899; }
+        .unknown-icon { color: var(--text-muted); }
+        
+        .ip-address {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            background: var(--surface-alt);
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+        }
+        
+        .not-reported {
+            opacity: 0.6;
+            font-style: italic;
+            color: var(--text-muted);
+        }
+        
+        /* Modern Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(2rem);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: var(--shadow-md);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: var(--shadow-lg);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .fade-in-scale {
+            animation: fadeInScale 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Summary Stats */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--surface-alt) 0%, var(--surface-dark) 100%);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-light);
+        }
+        
+        .summary-item {
+            text-align: center;
+        }
+        
+        .summary-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .summary-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 1rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .user-profile {
+                order: -1;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .summary-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-body {
+                padding: 1.5rem;
+            }
+            
+            .table th,
+            .table td {
+                padding: 1rem;
+                font-size: 0.875rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                padding: 1.5rem;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                padding: 0.875rem 1.5rem;
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Modern Military Header -->
+        <div class="header fade-in">
+            <div class="header-content">
+                <div class="header-main">
+                    <h1>
+                        <div class="header-icon">
+                            <i data-lucide="shield-check" width="24" height="24"></i>
+                        </div>
+                        מערכת נוכחות מתקדמת
+                    </h1>
+                    <p>מערכת דיווח נוכחות דיגיטלית - כיתה A</p>
+                </div>
+                
+                <div class="user-profile">
+                    <div class="user-avatar">A</div>
+                    <div class="user-info">
+                        <div class="user-name">כיתה A</div>
+                        <div class="user-rank">יחידה מתקדמת</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modern Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Attendance Form Card -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h3>
+                        <div class="card-header-icon">
+                            <i data-lucide="edit-3" width="20" height="20"></i>
+                        </div>
+                        טופס דיווח נוכחות
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form id="attendanceForm">
+                        <div class="form-group">
+                            <label for="name" class="form-label">שם החייל</label>
+                            <select class="form-control" id="name" required>
+                                <option value="">בחר את שמך מהרשימה</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="status" class="form-label">מצב נוכחות</label>
+                            <select class="form-control" id="status" required>
+                                <option value="">בחר מצב נוכחות</option>
+                                <option value="נוכח">נוכח</option>
+                                <option value="לא נוכח">לא נוכח</option>
+                                <option value="חסר/מאחר באישור">חסר/מאחר באישור</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block pulse">
+                            <span>דווח נוכחות</span>
+                            <i data-lucide="send" width="18" height="18"></i>
+                        </button>
+                    </form>
+                    <div id="timeOverlay" class="time-overlay" style="display: none;">
+                        <div class="time-overlay-content">
+                            <div class="time-overlay-icon">
+                                <i data-lucide="clock" width="24" height="24"></i>
+                            </div>
+                            <h3 style="margin-bottom: 0.5rem; color: var(--danger);">עבר זמן הדיווח!</h3>
+                            <p style="color: var(--text-secondary);">ניתן לדווח נוכחות עד השעה 9:00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modern Stats Card -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h3>
+                        <div class="card-header-icon">
+                            <i data-lucide="chart-bar" width="20" height="20"></i>
+                        </div>
+                        סטטיסטיקת נוכחות
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="stats-grid">
+                        <div class="stat-item fade-in-scale">
+                            <div class="stat-value present-stat" id="presentCount">0</div>
+                            <div class="stat-label">נוכחים</div>
+                        </div>
+                        <div class="stat-item fade-in-scale">
+                            <div class="stat-value absent-stat" id="absentCount">0</div>
+                            <div class="stat-label">חסרים</div>
+                        </div>
+                        <div class="stat-item fade-in-scale">
+                            <div class="stat-value approved-stat" id="approvedCount">0</div>
+                            <div class="stat-label">באישור</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                    
+                    <div class="summary-stats">
+                        <div class="summary-item">
+                            <div class="summary-label">
+                                <i data-lucide="users" width="16" height="16" style="margin-left: 0.5rem;"></i>
+                                סה"כ חיילים
+                            </div>
+                            <div class="summary-value" id="totalSoldiers">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">
+                                <i data-lucide="clock" width="16" height="16" style="margin-left: 0.5rem;"></i>
+                                עדכון אחרון
+                            </div>
+                            <div class="summary-value" id="lastUpdateTime">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modern Attendance Table Card -->
+        <div class="card fade-in">
+            <div class="card-header">
+                <h3>
+                    <div class="card-header-icon">
+                        <i data-lucide="clipboard-list" width="20" height="20"></i>
+                    </div>
+                    דוח נוכחות יומי מפורט
+                </h3>
+            </div>
+            <div class="card-body" id="attendance-table">
+                <div class="table-responsive">
+                    <table class="table" id="attendanceTable">
+                        <thead>
+                            <tr>
+                                <th>שם החייל</th>
+                                <th>סטטוס נוכחות</th>
+                                <th>זמן עדכון</th>
+                                <th>סוג מכשיר</th>
+                                <th>כתובת IP</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <button class="download-btn" onclick="downloadAttendanceImage()">
+            <i data-lucide="download" width="20" height="20"></i>
+            הורד דוח כתמונה
+        </button>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+        
+        // DOM Elements
+        const form = document.getElementById('attendanceForm');
+        const table = document.getElementById('attendanceTable').querySelector('tbody');
+        const timeOverlay = document.getElementById('timeOverlay');
+        const presentCountEl = document.getElementById('presentCount');
+        const absentCountEl = document.getElementById('absentCount');
+        const approvedCountEl = document.getElementById('approvedCount');
+        const totalSoldiersEl = document.getElementById('totalSoldiers');
+        const lastUpdateTimeEl = document.getElementById('lastUpdateTime');
+        let attendanceChart;
+
+        // Check if time has passed (9:00)
+        function checkCutoffTime() {
+            const now = new Date();
+            if (now.getHours() >= 24) { // Keep original logic
+                timeOverlay.style.display = 'flex';
+                return true;
+            }
+            return false;
+        }
+
+        // Modern welcome message
+        function showWelcomeMessage() {
+            const now = new Date();
+            const hour = now.getHours();
+            let greeting = 'בוקר טוב';
+            
+            if (hour >= 12 && hour < 17) {
+                greeting = 'צהריים טובים';
+            } else if (hour >= 17 || hour < 5) {
+                greeting = 'ערב טוב';
+            }
+            
+            // Using modern notification instead of SweetAlert
+            showNotification(`${greeting}, חייל! ברוך הבא למערכת נוכחות מתקדמת`, 'info', 4000);
+        }
+
+        // Modern notification system
+        function showNotification(message, type = 'info', duration = 3000) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 2rem;
+                right: 2rem;
+                background: white;
+                border-radius: var(--radius-lg);
+                padding: 1.5rem;
+                box-shadow: var(--shadow-xl);
+                border: 1px solid var(--border);
+                z-index: 1000;
+                max-width: 400px;
+                animation: fadeInUp 0.3s ease;
+            `;
+            
+            const icon = type === 'success' ? 'check-circle' : 
+                        type === 'error' ? 'x-circle' : 
+                        type === 'warning' ? 'alert-triangle' : 'info';
+            
+            const color = type === 'success' ? 'var(--success)' : 
+                         type === 'error' ? 'var(--danger)' : 
+                         type === 'warning' ? 'var(--warning)' : 'var(--primary)';
+            
+            notification.innerHTML = `
+                <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                    <div style="color: ${color}; margin-top: 0.25rem;">
+                        <i data-lucide="${icon}" width="20" height="20"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">
+                            ${type === 'success' ? 'הצלחה!' : 
+                              type === 'error' ? 'שגיאה!' : 
+                              type === 'warning' ? 'אזהרה!' : 'הודעה'}
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 0.875rem;">
+                            ${message}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, duration);
+        }
+
+        function downloadAttendanceImage() {
+            const element = document.getElementById('attendance-table');
+            
+            // Add loading state
+            const btn = document.querySelector('.download-btn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<div class="loading-spinner"></div> מכין הורדה...';
+            btn.disabled = true;
+            
+            html2canvas(element, {
+                letterRendering: true,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                removeContainer: true,
+                scale: 2
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `attendance_A_${new Date().toLocaleDateString('he-IL')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                // Reset button
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+                lucide.createIcons();
+                
+                showNotification('הדוח הורד בהצלחה!', 'success');
+            }).catch(err => {
+                console.error('Error generating image:', err);
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+                lucide.createIcons();
+                showNotification('שגיאה ביצירת התמונה', 'error');
+            });
+        }
+
+        // Initialize modern chart
+        function initChart(present, absent, approved) {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            
+            if (attendanceChart) {
+                attendanceChart.destroy();
+            }
+            
+            attendanceChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['נוכחים', 'חסרים', 'באישור'],
+                    datasets: [{
+                        data: [present, absent, approved],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(245, 158, 11, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(245, 158, 11, 1)'
+                        ],
+                        borderWidth: 2,
+                        hoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            rtl: true,
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: {
+                                    family: 'Inter',
+                                    size: 12,
+                                    weight: '600'
+                                }
+                            }
+                        }
+                    },
+                    cutout: '75%',
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true,
+                        duration: 1000,
+                        easing: 'easeInOutCubic'
+                    }
+                }
+            });
+        }
+
+        // Get device icon based on device type
+        function getDeviceIcon(deviceType) {
+            if (!deviceType) return '<i data-lucide="help-circle" class="device-icon unknown-icon"></i>';
+            
+            const lowerType = deviceType.toLowerCase();
+            if (lowerType.includes('mobile')) {
+                return '<i data-lucide="smartphone" class="device-icon mobile-icon"></i>';
+            } else if (lowerType.includes('tablet')) {
+                return '<i data-lucide="tablet" class="device-icon tablet-icon"></i>';
+            } else {
+                return '<i data-lucide="monitor" class="device-icon desktop-icon"></i>';
+            }
+        }
+
+        // Format timestamp
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return '<span class="not-reported">טרם דווח</span>';
+            
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('he-IL', {hour: '2-digit', minute:'2-digit'}) + 
+                   '<br><small style="color: var(--text-muted);">' + date.toLocaleDateString('he-IL') + '</small>';
+        }
+
+        // Load soldier names
+        async function loadNames() {
+            try {
+                const response = await fetch('/names/A');
+                const names = await response.json();
+                const nameSelect = document.getElementById('name');
+                
+                // Clear existing options except the first one
+                while (nameSelect.options.length > 1) {
+                    nameSelect.remove(1);
+                }
+                
+                // Add new options
+                names.forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.textContent = name;
+                    nameSelect.appendChild(opt);
+                });
+                
+                // Update total soldiers count
+                totalSoldiersEl.textContent = names.length;
+                
+            } catch (err) {
+                showNotification('שגיאה בטעינת שמות הלוחמים', 'error');
+                console.error('Error loading names:', err);
+            }
+        }
+
+        // Load attendance data
+        async function loadAttendance() {
+            try {
+                const response = await fetch('/attendance/details/A');
+                const data = await response.json();
+                table.innerHTML = '';
+                
+                let presentCount = 0;
+                let absentCount = 0;
+                let approvedCount = 0;
+                let lastUpdateTime = null;
+                
+                data.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.style.animation = `fadeInUp 0.4s ease ${index * 0.05}s both`;
+                    
+                    // Name cell
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = item.name;
+                    nameCell.style.fontWeight = '600';
+                    
+                    // Status cell
+                    const statusCell = document.createElement('td');
+                    const badge = document.createElement('span');
+                    badge.classList.add('status-badge');
+                    
+                    // Set status and count
+                    if (item.status === 'נוכח') {
+                        badge.classList.add('present');
+                        badge.innerHTML = `${item.status} <i data-lucide="check-circle" width="14" height="14"></i>`;
+                        presentCount++;
+                    } else if (item.status === 'לא נוכח') {
+                        badge.classList.add('absent');
+                        badge.innerHTML = `${item.status} <i data-lucide="x-circle" width="14" height="14"></i>`;
+                        absentCount++;
+                    } else if (item.status === 'חסר/מאחר באישור') {
+                        badge.classList.add('approved');
+                        badge.innerHTML = `${item.status} <i data-lucide="alert-circle" width="14" height="14"></i>`;
+                        approvedCount++;
+                    }
+                    
+                    statusCell.appendChild(badge);
+                    
+                    // Time cell
+                    const timeCell = document.createElement('td');
+                    timeCell.innerHTML = formatTimestamp(item.timestamp);
+                    
+                    // Device cell
+                    const deviceCell = document.createElement('td');
+                    deviceCell.innerHTML = getDeviceIcon(item.device_type);
+                    
+                    // IP cell
+                    const ipCell = document.createElement('td');
+                    if (item.ip_address) {
+                        ipCell.innerHTML = `<span class="ip-address">${item.ip_address}</span>`;
+                    } else {
+                        ipCell.innerHTML = '<span class="not-reported">-</span>';
+                    }
+                    
+                    row.appendChild(nameCell);
+                    row.appendChild(statusCell);
+                    row.appendChild(timeCell);
+                    row.appendChild(deviceCell);
+                    row.appendChild(ipCell);
+                    table.appendChild(row);
+                    
+                    // Track last update time
+                    if (item.timestamp) {
+                        const itemTime = new Date(item.timestamp).getTime();
+                        if (!lastUpdateTime || itemTime > lastUpdateTime) {
+                            lastUpdateTime = itemTime;
+                        }
+                    }
+                });
+                
+                // Update counts with animation
+                animateCount(presentCountEl, presentCount);
+                animateCount(absentCountEl, absentCount);
+                animateCount(approvedCountEl, approvedCount);
+                
+                // Update last update time
+                if (lastUpdateTime) {
+                    const lastUpdateDate = new Date(lastUpdateTime);
+                    lastUpdateTimeEl.textContent = lastUpdateDate.toLocaleTimeString('he-IL', {hour: '2-digit', minute:'2-digit'});
+                } else {
+                    lastUpdateTimeEl.textContent = '-';
+                }
+                
+                // Update chart
+                initChart(presentCount, absentCount, approvedCount);
+                
+                // Reinitialize icons
+                lucide.createIcons();
+                
+            } catch (err) {
+                showNotification('שגיאה בטעינת נתוני הנוכחות', 'error');
+                console.error('Error loading attendance:', err);
+            }
+        }
+
+        // Animate count numbers
+        function animateCount(element, target) {
+            const start = parseInt(element.textContent) || 0;
+            const range = target - start;
+            const duration = 800;
+            const startTime = performance.now();
+            
+            function updateCount(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const current = Math.round(start + (range * easeOut));
+                
+                element.textContent = current;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCount);
+                }
+            }
+            
+            requestAnimationFrame(updateCount);
+        }
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (checkCutoffTime()) {
+                showNotification('עבר הזמן המותר לעדכון נוכחות (9:00)', 'error');
+                return;
+            }
+            
+            const name = document.getElementById('name').value.trim();
+            const status = document.getElementById('status').value;
+            
+            if (!name || !status) {
+                showNotification('אנא מלא את כל השדות הנדרשים', 'warning');
+                return;
+            }
+            
+            try {
+                // Show loading state
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<div class="loading-spinner"></div> <span>מעדכן נוכחות...</span>';
+                submitBtn.disabled = true;
+                
+                const response = await fetch('/attendance/A', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, status })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showNotification('נוכחות עודכנה בהצלחה!', 'success');
+                    loadAttendance();
+                    
+                    // Reset form
+                    form.reset();
+                } else {
+                    showNotification(data.error || 'שגיאה בעדכון הנוכחות', 'error');
+                }
+            } catch (err) {
+                showNotification('שגיאה בשליחת הבקשה לשרת', 'error');
+                console.error('Error:', err);
+            } finally {
+                // Reset button
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+                lucide.createIcons();
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            showWelcomeMessage();
+            checkCutoffTime();
+            loadNames();
+            loadAttendance();
+            
+            // Refresh data every 30 seconds
+            setInterval(loadAttendance, 30000);
+        });
+    </script>
+</body>
+</html>

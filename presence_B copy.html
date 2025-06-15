@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת נוכחות - כיתה A</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    
+    <style>
+        /* כל הסגנונות הקיימים נשארים זהים */
+        :root {
+            --army-green: #4a5d23;
+            --army-dark: #2c3e11;
+            --army-light: #6b8e23;
+            --army-sand: #c2b280;
+            --army-tan: #d2b48c;
+            --success: #5cb85c;
+            --danger: #d9534f;
+            --warning: #f0ad4e;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Rubik', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            background-image: url('https://www.transparenttextures.com/patterns/camo.png');
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header with Military Style */
+        .header {
+            background: linear-gradient(135deg, var(--army-dark) 0%, var(--army-green) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-bottom: 4px solid var(--army-sand);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #c2b280, #8b7d3a, #c2b280);
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .header h1 i {
+            margin-left: 15px;
+            color: var(--army-sand);
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        /* Military ID Badge */
+        .user-profile {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 2px solid var(--army-sand);
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--army-green) 0%, var(--army-dark) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .user-name {
+            font-weight: 500;
+            color: var(--army-dark);
+        }
+        
+        .user-rank {
+            font-size: 0.8rem;
+            color: var(--army-green);
+            margin-top: 2px;
+        }
+        
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        @media (min-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        /* Military Style Cards */
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid #e0e0e0;
+            position: relative;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--army-green) 0%, var(--army-dark) 100%);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--army-sand);
+        }
+        
+        .card-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-header h3 i {
+            margin-left: 12px;
+            color: var(--army-sand);
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        /* Military Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--army-dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            transition: all 0.3s;
+            font-size: 1rem;
+            background-color: #f9f9f9;
+            border: 1px solid #d0d0d0;
+        }
+        
+        .form-control:focus {
+            border-color: var(--army-light);
+            box-shadow: 0 0 0 3px rgba(106, 142, 35, 0.2);
+            outline: none;
+            background-color: white;
+        }
+        
+        /* Military Buttons */
+        .btn {
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        
+        .btn i {
+            margin-left: 8px;
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--army-green) 0%, var(--army-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 8px rgba(74, 93, 35, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--army-dark) 0%, var(--army-green) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(74, 93, 35, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+        
+        .status-badge i {
+            margin-left: 6px;
+            font-size: 0.7rem;
+        }
+        
+        .present {
+            background-color: rgba(92, 184, 92, 0.15);
+            color: var(--success);
+        }
+        
+        .absent {
+            background-color: rgba(217, 83, 79, 0.15);
+            color: var(--danger);
+        }
+        
+        .approved {
+            background-color: rgba(240, 173, 78, 0.15);
+            color: var(--warning);
+        }
+        
+        /* Interactive Table */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 600px;
+        }
+        
+        .table th {
+            background-color: #f1f1f1;
+            font-weight: 600;
+            padding: 14px 16px;
+            text-align: right;
+            border-bottom: 2px solid #ddd;
+            color: var(--army-dark);
+        }
+        
+        .table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #eee;
+            background-color: white;
+        }
+        
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .table tr:hover td {
+            background-color: rgba(106, 142, 35, 0.05);
+        }
+        
+        /* Time Restriction Overlay */
+        .time-overlay {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(255,255,255,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--danger);
+            z-index: 10;
+            border-radius: 8px;
+            text-align: center;
+            padding: 20px;
+            backdrop-filter: blur(2px);
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .present-stat {
+            color: var(--success);
+        }
+        
+        .absent-stat {
+            color: var(--danger);
+        }
+        
+        .approved-stat {
+            color: var(--warning);
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 250px;
+            margin-top: 20px;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+                margin-right: 60px;
+            }
+            
+            .user-profile {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 15px;
+                width: fit-content;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Special Effects */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(74, 93, 35, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(74, 93, 35, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(74, 93, 35, 0); }
+        }
+        
+        .table td, .table th {
+            vertical-align: middle;
+        }
+        
+        .device-icon {
+            font-size: 1.2rem;
+            margin-left: 5px;
+        }
+        
+        .mobile-icon {
+            color: #4a6baf;
+        }
+        
+        .desktop-icon {
+            color: #6b4aaf;
+        }
+        
+        .tablet-icon {
+            color: #af4a6b;
+        }
+        
+        .unknown-icon {
+            color: #666;
+        }
+        
+        .ip-address {
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #555;
+        }
+        
+        .not-reported {
+            opacity: 0.6;
+            font-style: italic;
+        }
+        .download-btn {
+        background-color: #4CAF50; /* ירוק */
+        color: white;
+        padding: 12px 24px;
+        font-size: 18px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 20px;
+        }
+
+        .download-btn:hover {
+        background-color: #45a049;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Military Header -->
+        <div class="header animate__animated animate__fadeInDown">
+            <div class="user-profile">
+                <div class="user-avatar">A</div>
+                <div>
+                    <div class="user-name">כיתה A</div>
+                    <div class="user-rank"></div>
+                </div>
+            </div>
+            
+            <h1>
+                <i class="fas fa-user-shield"></i>
+                מערכת נוכחות
+            </h1>
+            <p>הזנת נוכחות כיתה גליל</p>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Attendance Form Card -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h3><i class="fas fa-edit"></i> טופס דיווח נוכחות</h3>
+                </div>
+                <div class="card-body">
+                    <form id="attendanceForm">
+                        <div class="form-group">
+                            <label for="name" class="form-label">שם החייל:</label>
+                            <select class="form-control" id="name" required>
+                                <option value="">בחר את שמך</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="status" class="form-label">מצב נוכחות:</label>
+                            <select class="form-control" id="status" required>
+                                <option value=""> בחר מצב </option>
+                                <option value="נוכח">נוכח</option>
+                                <option value="לא נוכח">לא נוכח</option>
+                                <option value="חסר/מאחר באישור">חסר/מאחר באישור</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block pulse">
+                            <span>דווח נוכחות</span>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                    <div id="timeOverlay" class="time-overlay" style="display: none;">
+                        <div>
+                            <i class="fas fa-clock fa-2x" style="margin-bottom: 10px;"></i>
+                            <h3 style="margin-bottom: 5px;">עבר זמן הדיווח!</h3>
+                            <p>ניתן לדווח נוכחות עד השעה 9:00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Card -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-bar"></i> סטטיסטיקת נוכחות</h3>
+                </div>
+                <div class="card-body">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value present-stat" id="presentCount">0</div>
+                            <div class="stat-label">נוכחים</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value absent-stat" id="absentCount">0</div>
+                            <div class="stat-label">חסרים</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value approved-stat" id="approvedCount">0</div>
+                            <div class="stat-label">באישור</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 15px;">
+                        <div style="font-size: 1.1rem; font-weight: 600; color: var(--army-dark);">
+                            <i class="fas fa-users"></i> סה"כ חיילים: <span id="totalSoldiers">0</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                            <i class="fas fa-clock"></i> עדכון אחרון: <span id="lastUpdateTime">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Table Card -->
+        <div class="card fade-in" >
+            <div class="card-header">
+                <h3><i class="fas fa-clipboard-list"></i> דוח נוכחות יומי</h3>
+            </div>
+            <div class="card-body" id="attendance-table">
+                <div class="table-responsive">
+                    <table class="table" id="attendanceTable">
+                        <thead>
+                            <tr>
+                                <th>שם החייל</th>
+                                <th>סטטוס נוכחות</th>
+                                <th>זמן עדכון</th>
+                                <th>סוג מכשיר</th>
+                                <th>כתובת IP</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <button class="download-btn" onclick="downloadAttendanceImage()">📸 הורד תמונה</button>
+    </div>
+
+    <script>
+        // DOM Elements
+        const form = document.getElementById('attendanceForm');
+        const table = document.getElementById('attendanceTable').querySelector('tbody');
+        const timeOverlay = document.getElementById('timeOverlay');
+        const presentCountEl = document.getElementById('presentCount');
+        const absentCountEl = document.getElementById('absentCount');
+        const approvedCountEl = document.getElementById('approvedCount');
+        const totalSoldiersEl = document.getElementById('totalSoldiers');
+        const lastUpdateTimeEl = document.getElementById('lastUpdateTime');
+        let attendanceChart;
+
+        // Check if time has passed (24:00)
+        function checkCutoffTime() {
+            const now = new Date();
+            if (now.getHours() >= 24) {
+                timeOverlay.style.display = 'flex';
+                return true;
+            }
+            return false;
+        }
+
+        // Show welcome message with military style
+        function showWelcomeMessage() {
+            const now = new Date();
+            const hour = now.getHours();
+            let greeting = 'בוקר טוב';
+            let icon = 'fa-sun';
+            
+            if (hour >= 12 && hour < 17) {
+                greeting = 'צהריים טובים';
+                icon = 'fa-sun';
+            } else if (hour >= 17 || hour < 5) {
+                greeting = 'ערב טוב';
+                icon = 'fa-moon';
+            }
+            
+            Swal.fire({
+                title: `<div style="font-size: 2rem; color: var(--army-dark); font-weight: 700;">${greeting}, חייל!</div>`,
+                html: `
+                    <div style="font-size: 1.2rem; color: #555; margin: 20px 0;">
+                        <i class="fas ${icon}" style="color: var(--army-light);"></i> ברוך הבא למערכת נוכחות כיתה A
+                    </div>
+                    <div style="background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%); 
+                                border-radius: 8px; 
+                                padding: 15px;
+                                border-left: 4px solid var(--army-light);
+                                margin-top: 15px;">
+                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                            <i class="fas fa-clock" style="color: var(--army-light); margin-left: 8px;"></i>
+                            <span style="font-weight: 600;">זמן דיווח נוכחות:</span>
+                        </div>
+                        <div style="background-color: var(--army-dark); color: white; padding: 8px; border-radius: 4px; text-align: center;">
+                            עד שעה 9:00
+                        </div>
+                    </div>
+                `,
+                icon: 'info',
+                iconColor: 'var(--army-light)',
+                confirmButtonText: '<span style="font-weight: 600;">הבנתי, מתחילים!</span>',
+                confirmButtonColor: 'var(--army-dark)',
+                background: '#ffffff',
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp'
+                },
+                timer: 5000,
+                timerProgressBar: true
+            });
+        }
+
+        // Show success notification with military theme
+        function showSuccessNotification(message) {
+            Swal.fire({
+                position: 'top-end',
+                title: '<span style="color: var(--success); font-weight: 700;">הצלחה!</span>',
+                html: `
+                    <div style="font-size: 1.1rem; color: #444; margin-top: 10px; display: flex; align-items: center;">
+                        <i class="fas fa-check-circle" style="color: var(--success); margin-left: 8px; font-size: 1.4rem;"></i>
+                        ${message}
+                    </div>
+                `,
+                showConfirmButton: false,
+                timer: 2000,
+                background: '#ffffff',
+                backdrop: false,
+                showClass: {
+                    popup: 'animate__animated animate__fadeInRight'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutRight'
+                }
+            });
+        }
+
+        function downloadAttendanceImage() {
+            const element = document.getElementById('attendance-table');
+
+            html2canvas(element, {
+                letterRendering: true, // שיפור טקסט
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                removeContainer: true,
+                scale: 2
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'attendance_A.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        // Show error notification with military theme
+        function showErrorNotification(message) {
+            Swal.fire({
+                position: 'top-end',
+                title: '<span style="color: var(--danger); font-weight: 700;">שגיאה!</span>',
+                html: `
+                    <div style="font-size: 1.1rem; color: #444; margin-top: 10px; display: flex; align-items: center;">
+                        <i class="fas fa-exclamation-triangle" style="color: var(--danger); margin-left: 8px; font-size: 1.4rem;"></i>
+                        ${message}
+                    </div>
+                `,
+                showConfirmButton: false,
+                timer: 2000,
+                background: '#ffffff',
+                backdrop: false,
+                showClass: {
+                    popup: 'animate__animated animate__fadeInRight'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutRight'
+                }
+            });
+        }
+
+        // Initialize chart
+        function initChart(present, absent, approved) {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            
+            if (attendanceChart) {
+                attendanceChart.destroy();
+            }
+            
+            attendanceChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['נוכחים', 'חסרים', 'באישור'],
+                    datasets: [{
+                        data: [present, absent, approved],
+                        backgroundColor: [
+                            'rgba(92, 184, 92, 0.8)',
+                            'rgba(217, 83, 79, 0.8)',
+                            'rgba(240, 173, 78, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(92, 184, 92, 1)',
+                            'rgba(217, 83, 79, 1)',
+                            'rgba(240, 173, 78, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            rtl: true,
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: {
+                                    family: 'Rubik',
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%',
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
+                    }
+                }
+            });
+        }
+
+        // Get device icon based on device type
+        function getDeviceIcon(deviceType) {
+            if (!deviceType) return '<i class="fas fa-question-circle device-icon unknown-icon"></i>';
+            
+            const lowerType = deviceType.toLowerCase();
+            if (lowerType.includes('mobile')) {
+                return '<i class="fas fa-mobile-alt device-icon mobile-icon"></i>';
+            } else if (lowerType.includes('tablet')) {
+                return '<i class="fas fa-tablet-alt device-icon tablet-icon"></i>';
+            } else if (lowerType.includes('desktop')) {
+                return '<i class="fas fa-desktop device-icon desktop-icon"></i>';
+            } else {
+                return '<i class="fas fa-laptop device-icon desktop-icon"></i>';
+            }
+        }
+
+        // Format timestamp
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return '<span class="not-reported">טרם דווח</span>';
+            
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('he-IL', {hour: '2-digit', minute:'2-digit'}) + 
+                   '<br><small>' + date.toLocaleDateString('he-IL') + '</small>';
+        }
+
+        // Load soldier names
+        async function loadNames() {
+            try {
+                const response = await fetch('/names/B');
+                const names = await response.json();
+                const nameSelect = document.getElementById('name');
+                
+                // Clear existing options except the first one
+                while (nameSelect.options.length > 1) {
+                    nameSelect.remove(1);
+                }
+                
+                // Add new options
+                names.forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.textContent = name;
+                    nameSelect.appendChild(opt);
+                });
+                
+                // Update total soldiers count
+                totalSoldiersEl.textContent = names.length;
+                
+            } catch (err) {
+                showErrorNotification('שגיאה בטעינת שמות הלוחמים');
+                console.error('Error loading names:', err);
+            }
+        }
+
+        // Load attendance data
+        async function loadAttendance() {
+            try {
+                const response = await fetch('/attendance/details/B');
+                const data = await response.json();
+                table.innerHTML = '';
+                
+                let presentCount = 0;
+                let absentCount = 0;
+                let approvedCount = 0;
+                let lastUpdateTime = null;
+                
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.classList.add('animate__animated', 'animate__fadeIn');
+                    
+                    // Name cell
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = item.name;
+                    
+                    // Status cell
+                    const statusCell = document.createElement('td');
+                    const badge = document.createElement('span');
+                    badge.classList.add('status-badge');
+                    
+                    // Set status and count
+                    if (item.status === 'נוכח') {
+                        badge.classList.add('present');
+                        badge.innerHTML = `${item.status} <i class="fas fa-check-circle"></i>`;
+                        presentCount++;
+                    } else if (item.status === 'לא נוכח') {
+                        badge.classList.add('absent');
+                        badge.innerHTML = `${item.status} <i class="fas fa-times-circle"></i>`;
+                        absentCount++;
+                    } else if (item.status === 'חסר/מאחר באישור') {
+                        badge.classList.add('approved');
+                        badge.innerHTML = `${item.status} <i class="fas fa-exclamation-circle"></i>`;
+                        approvedCount++;
+                    }
+                    
+                    statusCell.appendChild(badge);
+                    
+                    // Time cell
+                    const timeCell = document.createElement('td');
+                    timeCell.innerHTML = formatTimestamp(item.timestamp);
+                    
+                    // Device cell
+                    const deviceCell = document.createElement('td');
+                    deviceCell.innerHTML = getDeviceIcon(item.device_type);
+                    
+                    // IP cell
+                    const ipCell = document.createElement('td');
+                    if (item.ip_address) {
+                        ipCell.innerHTML = `<span class="ip-address">${item.ip_address}</span>`;
+                    } else {
+                        ipCell.innerHTML = '<span class="not-reported">-</span>';
+                    }
+                    
+                    row.appendChild(nameCell);
+                    row.appendChild(statusCell);
+                    row.appendChild(timeCell);
+                    row.appendChild(deviceCell);
+                    row.appendChild(ipCell);
+                    table.appendChild(row);
+                    
+                    // Track last update time
+                    if (item.timestamp) {
+                        const itemTime = new Date(item.timestamp).getTime();
+                        if (!lastUpdateTime || itemTime > lastUpdateTime) {
+                            lastUpdateTime = itemTime;
+                        }
+                    }
+                });
+                
+                // Update counts
+                presentCountEl.textContent = presentCount;
+                absentCountEl.textContent = absentCount;
+                approvedCountEl.textContent = approvedCount;
+                
+                // Update last update time
+                if (lastUpdateTime) {
+                    const lastUpdateDate = new Date(lastUpdateTime);
+                    lastUpdateTimeEl.textContent = lastUpdateDate.toLocaleTimeString('he-IL', {hour: '2-digit', minute:'2-digit'});
+                } else {
+                    lastUpdateTimeEl.textContent = '-';
+                }
+                
+                // Update chart
+                initChart(presentCount, absentCount, approvedCount);
+                
+            } catch (err) {
+                showErrorNotification('שגיאה בטעינת נתוני הנוכחות');
+                console.error('Error loading attendance:', err);
+            }
+        }
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (checkCutoffTime()) {
+                showErrorNotification('עבר הזמן המותר לעדכון נוכחות (9:00)');
+                return;
+            }
+            
+            const name = document.getElementById('name').value.trim();
+            const status = document.getElementById('status').value;
+            
+            if (!name || !status) {
+                showErrorNotification('אנא מלא את כל השדות הנדרשים');
+                return;
+            }
+            
+            try {
+                // Show loading state
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<span>מעדכן נוכחות...</span> <i class="fas fa-spinner fa-spin"></i>';
+                submitBtn.disabled = true;
+                
+                const response = await fetch('/attendance/B', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, status })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccessNotification('נוכחות עודכנה בהצלחה!');
+                    loadAttendance();
+                    
+                    // Reset form
+                    form.reset();
+                } else {
+                    showErrorNotification(data.error || 'שגיאה בעדכון הנוכחות');
+                }
+            } catch (err) {
+                showErrorNotification('שגיאה בשליחת הבקשה לשרת');
+                console.error('Error:', err);
+            } finally {
+                // Reset button
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = '<span>דווח נוכחות</span> <i class="fas fa-paper-plane"></i>';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            showWelcomeMessage();
+            checkCutoffTime();
+            loadNames();
+            loadAttendance();
+            
+            // Refresh data every 30 seconds
+            setInterval(loadAttendance, 30000);
+        });
+    </script>
+</body>
+</html>
