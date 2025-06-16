@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, render_template
 from models import db
 from attendance_system import AttendanceSystem
 import os
@@ -58,7 +58,13 @@ def In_development():
 def PresenceSending():
     return send_from_directory('', 'Presence_Sending.html')
 
+@app.route('/api/attendance/stats')
+def attendance_stats():
+    return attendance_system.attendance_stats()
 
+@app.route('/attendance/dashboard')
+def attendance_dashboard():
+    return render_template('attendance_dashboard.html')
 
 
 if __name__ == '__main__':

@@ -1,6 +1,9 @@
 from models import db, Attendance
 from datetime import datetime
 import pytz
+from flask import jsonify
+from collections import defaultdict
+from datetime import datetime
 
 
 
@@ -33,34 +36,33 @@ class AttendanceSystem:
                 "ריזה ישראל",
                 "שבדרון חיים",
                 "שובר אריה"
-                ], 
+                ],
             'B': [
-                "ירחם מנדלסון",
-                "נחמן בן אור",
-                "בצלאל שטרן",
-                "יוסי בן חיים",
-                "שמריהו זלמנוב",
-                "יואל אידר",
-                "יעקב מתן",
-                "יקיר אוזן",
+                "ירוחם מנדלסון",
+                "הערשי שור",
+                "שלומי היימליך",
                 "יונתן רוזנפלד",
-                "ישראל בינונסקי",
-                "שלמה הופמן",
-                "ברוך צבי (הערשי) שור",
-                "תולי ברגר",
-                "מוטי קופשיץ",
-                "אלעזר רוזן",
-                "שמואל בלאו",
-                "בן פזי",
+                "הרשי רוזנפלד",
+                "אלעזר מתן",
+                "בצלאל שטרן",
                 "דוב צוקר",
+                "מוטי קופשיץ",
+                "יעקב מתן",
                 "שלומי וינד",
-                "שלומי ניישטאט",
-                "יוסי רוזנפלד",
-                "יצחק הילרמן",
-                "יהודה גואטה",
-                "דוד טייבמן",
-                ],  
-
+                "שלמה הופמן",
+                "ישראל בינונסקי",
+                "דוד טייכמן",
+                "יקיר אוזן",
+                "תולי ברגר",
+                "שמואל בלאו",
+                "אריאל בן פזי",
+                "יוסי בן חיים",
+                "שלומי נוישטאט",
+                "נחמן בר אור",
+                "ינון גואטה",
+                "יואל אידר",
+                "שמריהו זלמנוב"
+                ]
         }
 
     def after_cutoff(self):
@@ -166,3 +168,73 @@ class AttendanceSystem:
                     'reported': False
                 })
         return details
+    
+    def attendance_stats(self):
+
+        # קבלת כל הרשומות מה-attendance כדי למצוא את כל התלמידים הייחודיים
+        all_attendance = Attendance.query.all()
+        
+        # יצירת רשימת תלמידים ייחודיים מהרשומות הקיימות
+        student_names = {record.name for record in all_attendance}
+        
+        # קבלת נוכחות להיום
+        today = datetime.now().strftime('%Y-%m-%d')
+        today_attendance = Attendance.query.filter_by(date=today).all()
+        
+        # חישוב סטטיסטיקות
+        present = set()
+        absent = set()
+        late = set()
+        
+        for record in today_attendance:
+            if record.status == 'present':
+                present.add(record.name)
+            elif record.status == 'absent':
+                absent.add(record.name)
+            elif record.status == 'late':
+                late.add(record.name)
+        
+        # חישוב מי לא נוכח (לא מופיע כלל במערכת היום)
+        not_recorded = student_names - (present | absent | late)
+        
+        # סטטיסטיקה לפי כיתה
+        class_stats = defaultdict(lambda: {
+            'present': 0,
+            'absent': 0,
+            'late': 0,
+            'not_recorded': 0,
+            'total': 0
+        })
+        
+        # עדכון הסטטיסטיקה לפי כיתה
+        for record in all_attendance:
+            if record.name in student_names:  # רק תלמידים ייחודיים
+                class_stats[record.class_id]['total'] += 1
+                student_names.discard(record.name)  # מונע ספירה כפולה
+                
+                if record.date == today:
+                    if record.status == 'present':
+                        class_stats[record.class_id]['present'] += 1
+                    elif record.status == 'absent':
+                        class_stats[record.class_id]['absent'] += 1
+                    elif record.status == 'late':
+                        class_stats[record.class_id]['late'] += 1
+                    # לא מעדכנים not_recorded כאן כי זה רק עבור היום
+        
+        # עדכון not_recorded עבור היום
+        for record in all_attendance:
+            if record.name in not_recorded and record.date == today:
+                class_stats[record.class_id]['not_recorded'] += 1
+        
+        return jsonify({
+            'date': today,
+            'totals': {
+                'present': len(present),
+                'absent': len(absent),
+                'late': len(late),
+                'not_recorded': len(not_recorded),
+                'total_students': len(student_names)
+            },
+            'by_class': class_stats,
+            'not_recorded_students': list(not_recorded)
+        })

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>לוח נוכחות מתקדם</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                fontFamily: {
+                    sans: ['Rubik', 'sans-serif'],
+                },
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                        info: '#3b82f6',
+                        dark: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts - Rubik (Hebrew support) -->
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .hebrew-text {
+            font-family: 'Rubik', sans-serif;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .progress-bar {
+            transition: width 1s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 hebrew-text">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-gradient-to-r from-primary to-indigo-600 shadow-lg">
+            <div class="container mx-auto px-4 py-6">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-3xl font-bold text-white animate__animated animate__fadeInDown">
+                        <i class="fas fa-user-check mr-3"></i>לוח נוכחות מתקדם
+                    </h1>
+                    <div class="text-white bg-indigo-700 px-4 py-2 rounded-full shadow animate__animated animate__fadeInDown animate__delay-1s">
+                        <i class="far fa-calendar-alt mr-2"></i>
+                        <span id="current-date"></span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 py-8">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Present Card -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 card-hover animate__animated animate__fadeIn">
+                    <div class="p-6 flex items-center">
+                        <div class="bg-success bg-opacity-10 p-4 rounded-full">
+                            <i class="fas fa-user-check text-success text-2xl"></i>
+                        </div>
+                        <div class="mr-4">
+                            <h3 class="text-gray-500 font-medium">נוכחים</h3>
+                            <p class="text-2xl font-bold text-gray-800" id="present-count">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Absent Card -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 card-hover animate__animated animate__fadeIn animate__delay-1s">
+                    <div class="p-6 flex items-center">
+                        <div class="bg-danger bg-opacity-10 p-4 rounded-full">
+                            <i class="fas fa-user-times text-danger text-2xl"></i>
+                        </div>
+                        <div class="mr-4">
+                            <h3 class="text-gray-500 font-medium">נעדרים</h3>
+                            <p class="text-2xl font-bold text-gray-800" id="absent-count">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Late Card -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 card-hover animate__animated animate__fadeIn animate__delay-2s">
+                    <div class="p-6 flex items-center">
+                        <div class="bg-warning bg-opacity-10 p-4 rounded-full">
+                            <i class="fas fa-clock text-warning text-2xl"></i>
+                        </div>
+                        <div class="mr-4">
+                            <h3 class="text-gray-500 font-medium">מאחרים</h3>
+                            <p class="text-2xl font-bold text-gray-800" id="late-count">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Not Recorded Card -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 card-hover animate__animated animate__fadeIn animate__delay-3s">
+                    <div class="p-6 flex items-center">
+                        <div class="bg-info bg-opacity-10 p-4 rounded-full">
+                            <i class="fas fa-question-circle text-info text-2xl"></i>
+                        </div>
+                        <div class="mr-4">
+                            <h3 class="text-gray-500 font-medium">לא נרשם</h3>
+                            <p class="text-2xl font-bold text-gray-800" id="not-recorded-count">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Pie Chart -->
+                <div class="bg-white p-6 rounded-xl shadow-md animate__animated animate__fadeInLeft">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-chart-pie text-primary mr-2"></i> פילוח נוכחות כללי
+                    </h2>
+                    <div class="h-80">
+                        <canvas id="attendancePieChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Bar Chart -->
+                <div class="bg-white p-6 rounded-xl shadow-md animate__animated animate__fadeInRight">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-chart-bar text-primary mr-2"></i> נוכחות לפי כיתה
+                    </h2>
+                    <div class="h-80">
+                        <canvas id="classBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Students Lists -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Not Recorded Students -->
+                <div class="bg-white p-6 rounded-xl shadow-md animate__animated animate__fadeInUp">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-question-circle text-info mr-2"></i> תלמידים שלא נרשמו
+                        <span class="bg-info text-white text-sm font-medium px-2.5 py-0.5 rounded-full ml-2" id="not-recorded-badge">0</span>
+                    </h2>
+                    <div class="space-y-3 max-h-96 overflow-y-auto pr-2" id="not-recorded-list">
+                        <div class="text-center text-gray-500 py-4">טוען נתונים...</div>
+                    </div>
+                </div>
+
+                <!-- Absent Students -->
+                <div class="bg-white p-6 rounded-xl shadow-md animate__animated animate__fadeInUp animate__delay-1s">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-user-times text-danger mr-2"></i> תלמידים נעדרים
+                        <span class="bg-danger text-white text-sm font-medium px-2.5 py-0.5 rounded-full ml-2" id="absent-badge">0</span>
+                    </h2>
+                    <div class="space-y-3 max-h-96 overflow-y-auto pr-2" id="absent-list">
+                        <div class="text-center text-gray-500 py-4">טוען נתונים...</div>
+                    </div>
+                </div>
+
+                <!-- Late Students -->
+                <div class="bg-white p-6 rounded-xl shadow-md animate__animated animate__fadeInUp animate__delay-2s">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-clock text-warning mr-2"></i> תלמידים מאחרים
+                        <span class="bg-warning text-white text-sm font-medium px-2.5 py-0.5 rounded-full ml-2" id="late-badge">0</span>
+                    </h2>
+                    <div class="space-y-3 max-h-96 overflow-y-auto pr-2" id="late-list">
+                        <div class="text-center text-gray-500 py-4">טוען נתונים...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Class Attendance Table -->
+            <div class="bg-white p-6 rounded-xl shadow-md mt-8 animate__animated animate__fadeIn">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-table text-primary mr-2"></i> סטטיסטיקות נוכחות לפי כיתה
+                </h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">כיתה</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">סה"כ תלמידים</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">נוכחים</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">נעדרים</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">מאחרים</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">לא נרשם</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">אחוז נוכחות</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="class-table-body">
+                            <tr>
+                                <td colspan="7" class="px-6 py-4 text-center text-gray-500">טוען נתונים...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date
+            const now = new Date();
+            document.getElementById('current-date').textContent = now.toLocaleDateString('he-IL');
+            
+            // GSAP animations
+            gsap.from("header", {duration: 0.8, y: -50, opacity: 0});
+            gsap.from(".card-hover", {duration: 0.6, y: 20, opacity: 0, stagger: 0.2});
+            
+            // Fetch data
+            fetch('/api/attendance/stats')
+                .then(response => response.json())
+                .then(data => {
+                    // Update stats cards
+                    animateValue('present-count', 0, data.totals.present, 1000);
+                    animateValue('absent-count', 0, data.totals.absent, 1000);
+                    animateValue('late-count', 0, data.totals.late, 1000);
+                    animateValue('not-recorded-count', 0, data.totals.not_recorded, 1000);
+                    
+                    // Update badges
+                    document.getElementById('not-recorded-badge').textContent = data.totals.not_recorded;
+                    document.getElementById('absent-badge').textContent = data.totals.absent;
+                    document.getElementById('late-badge').textContent = data.totals.late;
+                    
+                    // Render charts
+                    renderPieChart(data);
+                    renderBarChart(data);
+                    
+                    // Render student lists
+                    renderStudentList('not-recorded-list', data.not_recorded_students, 'info');
+                    renderStudentList('absent-list', data.by_class, 'absent', 'danger');
+                    renderStudentList('late-list', data.by_class, 'late', 'warning');
+                    
+                    // Render class table
+                    renderClassTable(data.by_class);
+                });
+            
+            // Animate numbers counting up
+            function animateValue(id, start, end, duration) {
+                const obj = document.getElementById(id);
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    obj.innerHTML = Math.floor(progress * (end - start) + start);
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            }
+            
+            // Render pie chart
+            function renderPieChart(data) {
+                const ctx = document.getElementById('attendancePieChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['נוכחים', 'נעדרים', 'מאחרים', 'לא נרשם'],
+                        datasets: [{
+                            data: [
+                                data.totals.present,
+                                data.totals.absent,
+                                data.totals.late,
+                                data.totals.not_recorded
+                            ],
+                            backgroundColor: [
+                                '#10b981',
+                                '#ef4444',
+                                '#f59e0b',
+                                '#3b82f6'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                rtl: true
+                            },
+                            tooltip: {
+                                rtl: true,
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const percentage = Math.round(value / data.totals.total_students * 100);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+            }
+            
+            // Render bar chart
+            function renderBarChart(data) {
+                const classes = Object.keys(data.by_class);
+                const datasets = [
+                    {
+                        label: 'נוכחים',
+                        data: classes.map(cls => data.by_class[cls].present),
+                        backgroundColor: '#10b981'
+                    },
+                    {
+                        label: 'נעדרים',
+                        data: classes.map(cls => data.by_class[cls].absent),
+                        backgroundColor: '#ef4444'
+                    },
+                    {
+                        label: 'מאחרים',
+                        data: classes.map(cls => data.by_class[cls].late),
+                        backgroundColor: '#f59e0b'
+                    },
+                    {
+                        label: 'לא נרשם',
+                        data: classes.map(cls => data.by_class[cls].not_recorded),
+                        backgroundColor: '#3b82f6'
+                    }
+                ];
+                
+                const ctx = document.getElementById('classBarChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: classes,
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                stacked: true,
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                stacked: true,
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                rtl: true
+                            },
+                            tooltip: {
+                                rtl: true,
+                                mode: 'index',
+                                intersect: false
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Render student lists
+            function renderStudentList(elementId, data, status, color = 'info') {
+                const container = document.getElementById(elementId);
+                
+                if (Array.isArray(data)) {
+                    // For not recorded students (simple array)
+                    if (data.length === 0) {
+                        container.innerHTML = '<div class="text-center text-gray-500 py-4">אין תלמידים בקטגוריה זו</div>';
+                        return;
+                    }
+                    
+                    container.innerHTML = '';
+                    data.forEach(student => {
+                        const studentEl = document.createElement('div');
+                        studentEl.className = `flex items-center p-3 bg-${color}-50 rounded-lg`;
+                        studentEl.innerHTML = `
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-${color}-100 flex items-center justify-center">
+                                <i class="fas fa-user text-${color}-500"></i>
+                            </div>
+                            <div class="mr-3">
+                                <p class="font-medium text-gray-800">${student}</p>
+                                <p class="text-sm text-gray-500">לא נרשמה נוכחות</p>
+                            </div>
+                        `;
+                        container.appendChild(studentEl);
+                    });
+                } else {
+                    // For class-wise data (absent/late)
+                    let students = [];
+                    for (const classId in data) {
+                        if (data[classId][status] > 0) {
+                            // In a real app, you would fetch the actual student names for each class
+                            for (let i = 0; i < data[classId][status]; i++) {
+                                students.push({
+                                    name: `תלמיד ${i+1}`, // Placeholder - replace with actual names
+                                    class: classId
+                                });
+                            }
+                        }
+                    }
+                    
+                    if (students.length === 0) {
+                        container.innerHTML = '<div class="text-center text-gray-500 py-4">אין תלמידים בקטגוריה זו</div>';
+                        return;
+                    }
+                    
+                    container.innerHTML = '';
+                    students.forEach(student => {
+                        const studentEl = document.createElement('div');
+                        studentEl.className = `flex items-center p-3 bg-${color}-50 rounded-lg`;
+                        studentEl.innerHTML = `
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-${color}-100 flex items-center justify-center">
+                                <i class="fas fa-user text-${color}-500"></i>
+                            </div>
+                            <div class="mr-3">
+                                <p class="font-medium text-gray-800">${student.name}</p>
+                                <p class="text-sm text-gray-500">כיתה ${student.class}</p>
+                            </div>
+                        `;
+                        container.appendChild(studentEl);
+                    });
+                }
+            }
+            
+            // Render class table
+            function renderClassTable(classData) {
+                const tbody = document.getElementById('class-table-body');
+                tbody.innerHTML = '';
+                
+                for (const classId in classData) {
+                    const cls = classData[classId];
+                    const attendanceRate = Math.round((cls.present / cls.total) * 100);
+                    
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">${classId}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">${cls.total}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">
+                                ${cls.present}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger-100 text-danger-800">
+                                ${cls.absent}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 text-warning-800">
+                                ${cls.late}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-info-100 text-info-800">
+                                ${cls.not_recorded}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-success h-2.5 rounded-full progress-bar" 
+                                         style="width: ${attendanceRate}%"></div>
+                                </div>
+                                <span class="text-gray-700 font-medium mr-2">${attendanceRate}%</span>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
