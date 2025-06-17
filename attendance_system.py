@@ -1,5 +1,5 @@
 from models import db, Attendance
-from datetime import datetime
+from datetime import datetime, time
 import pytz
 from flask import jsonify
 from collections import defaultdict
@@ -9,7 +9,7 @@ from datetime import datetime
 
 class AttendanceSystem:
     def __init__(self):
-        self.CUTOFF_HOUR = datetime.strptime("09:20", "%H:%M").time()
+        self.CUTOFF_HOUR = time(9, 25)
         self.israel_tz = pytz.timezone('Asia/Jerusalem')
         self.CLASSES = {
             'A': [
