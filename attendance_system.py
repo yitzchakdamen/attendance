@@ -66,8 +66,10 @@ class AttendanceSystem:
         }
 
     def after_cutoff(self):
-        now = datetime.now(self.israel_tz)
-        return now.hour >= self.CUTOFF_HOUR
+        israel = pytz.timezone('Asia/Jerusalem')
+        now = datetime.now(israel).time()  # שעת ישראל הנוכחית
+        return now >= self.CUTOFF_HOUR
+
 
     def get_real_ip(self, request):
         x_forwarded_for = request.headers.get('X-Forwarded-For')
