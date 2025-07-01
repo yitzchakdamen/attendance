@@ -9,7 +9,7 @@ from datetime import datetime
 
 class AttendanceSystem:
     def __init__(self):
-        self.CUTOFF_HOUR = time(9, 25)
+        self.CUTOFF_HOUR = time(9, 01)
         self.israel_tz = pytz.timezone('Asia/Jerusalem')
         self.CLASSES = {
             'A': [
